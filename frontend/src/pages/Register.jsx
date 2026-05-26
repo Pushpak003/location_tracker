@@ -33,7 +33,7 @@ function Register() {
 
       alert(response.data.message);
 
-      navigate("/");
+      navigate("/login");
 
     } catch (error) {
 

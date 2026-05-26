@@ -1,90 +1,59 @@
 import { verifyToken }
 from "../utils/jwt.js";
 
-export const socketHandler = (io) => {
+export const socketHandler =
+(io, socket) => {
 
-  // Auth Middleware
-  io.use((socket, next) => {
+  console.log(
+    "Socket Connected"
+  );
 
-    try {
+  // Viewer joins tracking
+  socket.on(
+    "watch-tracking",
+    (trackingId) => {
 
-      const token =
-        socket.handshake.auth.token;
+      socket.join(trackingId);
 
-      if (!token) {
-        return next(
-          new Error("Unauthorized")
-        );
-      }
-
-      const decoded =
-        verifyToken(token);
-
-      socket.user = decoded;
-
-      next();
-
-    } catch (error) {
-
-      next(
-        new Error("Unauthorized")
+      console.log(
+        `Watching ${trackingId}`
       );
 
     }
-  });
+  );
 
-  io.on("connection", (socket) => {
+  // Sender sends location
+  socket.on(
+    "send-location",
+    (data) => {
 
-    console.log(
-      `${socket.user.email} connected`
-    );
+      io.to(
+        data.trackingId
+      ).emit(
+        "receive-location",
+        {
+          latitude:
+            data.latitude,
 
-    // Viewer joins tracking
-    socket.on(
-      "watch-tracking",
-      (trackingId) => {
+          longitude:
+            data.longitude,
 
-        socket.join(trackingId);
+          userId:
+            socket.user?.id,
+        }
+      );
 
-        console.log(
-          `Watching tracking ${trackingId}`
-        );
+    }
+  );
 
-      }
-    );
+  socket.on(
+    "disconnect",
+    () => {
 
-    // Sender sends location
-    socket.on(
-      "send-location",
-      (data) => {
+      console.log(
+        "Socket disconnected"
+      );
 
-        io.to(data.trackingId).emit(
-          "receive-location",
-          {
-            latitude:
-              data.latitude,
-
-            longitude:
-              data.longitude,
-
-            userId:
-              socket.user.id,
-          }
-        );
-
-      }
-    );
-
-    socket.on(
-      "disconnect",
-      () => {
-
-        console.log(
-          `${socket.user.email} disconnected`
-        );
-
-      }
-    );
-
-  });
+    }
+  );
 };

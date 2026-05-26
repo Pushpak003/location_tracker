@@ -4,6 +4,7 @@ import {
   Route,
 } from "react-router-dom";
 
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -15,10 +16,9 @@ function App() {
     <BrowserRouter>
 
       <Routes>
-
         <Route
           path="/"
-          element={<Register />}
+          element={<Home />}
         />
 
         <Route
@@ -26,6 +26,11 @@ function App() {
           element={<Login />}
         />
 
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+        
         <Route
           path="/dashboard"
           element={<Dashboard />}
