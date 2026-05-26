@@ -58,9 +58,7 @@ export const socketHandler = (io) => {
       "send-location",
       (data) => {
 
-        socket.to(
-          data.trackingId
-        ).emit(
+        io.to(data.trackingId).emit(
           "receive-location",
           {
             latitude:
