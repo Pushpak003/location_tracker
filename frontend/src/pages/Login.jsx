@@ -1,92 +1,216 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
 
-import { api } from "../api/axios";
-
-import { useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 function Login() {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] =
+    useState({
+      email: "",
+      password: "",
+    });
 
   const handleChange = (e) => {
 
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+
+      [e.target.name]:
+        e.target.value,
     });
 
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit =
+    async (e) => {
 
-    e.preventDefault();
+      e.preventDefault();
 
-    try {
+      try {
 
-      const response = await api.post(
-        "/auth/login",
-        formData
-      );
+        const response =
+          await fetch(
+            "http://localhost:5000/api/auth/login",
+            {
+              method: "POST",
 
-      localStorage.setItem(
-        "token",
-        response.data.token
-      );
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
 
-      alert("Login successful");
+              body: JSON.stringify(
+                formData
+              ),
+            }
+          );
 
-      navigate("/dashboard");
+        const data =
+          await response.json();
 
-    } catch (error) {
+        if (data.success) {
 
-      alert(
-        error.response.data.message
-      );
+          localStorage.setItem(
+            "token",
+            data.token
+          );
 
-    }
+          navigate(
+            "/dashboard"
+          );
+
+        } else {
+
+          alert(data.message);
+
+        }
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
   };
 
   return (
+    <div
+      className="
+        min-h-screen
+        bg-black
+        flex
+        items-center
+        justify-center
+        px-4
+      "
+    >
 
-    <div className="h-screen flex items-center justify-center">
-
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 w-[300px]"
+      <div
+        className="
+          w-full
+          max-w-md
+          bg-zinc-900
+          border
+          border-zinc-800
+          rounded-3xl
+          p-8
+          shadow-2xl
+        "
       >
 
-        <h1 className="text-3xl font-bold">
-          Login
+        <h1
+          className="
+            text-white
+            text-4xl
+            font-bold
+            text-center
+            mb-2
+          "
+        >
+          Welcome Back
         </h1>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          className="border p-2"
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          className="border p-2"
-        />
-
-        <button
-          className="bg-black text-white p-2"
+        <p
+          className="
+            text-zinc-400
+            text-center
+            mb-8
+          "
         >
-          Login
-        </button>
+          Login to continue tracking
+        </p>
 
-      </form>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+
+            onChange={handleChange}
+
+            className="
+              w-full
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-2xl
+              p-4
+              text-white
+              outline-none
+            "
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+
+            onChange={handleChange}
+
+            className="
+              w-full
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-2xl
+              p-4
+              text-white
+              outline-none
+            "
+          />
+
+          <button
+            type="submit"
+            className="
+              w-full
+              bg-blue-600
+              hover:bg-blue-700
+              text-white
+              p-4
+              rounded-2xl
+              font-semibold
+              transition
+            "
+          >
+            Login
+          </button>
+
+        </form>
+
+        <p
+          className="
+            text-zinc-400
+            text-center
+            mt-6
+          "
+        >
+          Don't have an account?{" "}
+
+          <Link
+            to="/register"
+            className="
+              text-blue-500
+              hover:underline
+            "
+          >
+            Register
+          </Link>
+
+        </p>
+
+      </div>
 
     </div>
   );
