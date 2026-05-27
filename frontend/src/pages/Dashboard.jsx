@@ -12,7 +12,7 @@ function Dashboard() {
 
         const response =
           await fetch(
-            "http://localhost:5000/api/tracking/create",
+            "https://location-tracker-dhe8.onrender.com/api/tracking/create",
             {
               method: "POST",
 
