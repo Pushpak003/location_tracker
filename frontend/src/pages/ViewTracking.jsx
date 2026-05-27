@@ -41,7 +41,7 @@ function ViewTracking() {
       );
 
       const data = await response.json();
-
+      console.log(data);
       if (!data.routes || !data.routes.length) return;
 
       const route = data.routes[0];
@@ -138,7 +138,9 @@ function ViewTracking() {
         const { latitude, longitude } = data;
 
         // Last Updated
-        setLastUpdated("Just now");
+        setLastUpdated(
+  new Date().toLocaleTimeString()
+);
 
         // Sender Marker
         if (!senderMarkerRef.current) {
@@ -154,21 +156,49 @@ function ViewTracking() {
 
         // Distance
         // Distance
-        const from = turf.point([viewerLng, viewerLat]);
+        const currentViewerCoords =
+  viewerCoordsRef.current;
 
-        const to = turf.point([longitude, latitude]);
+if (!currentViewerCoords)
+  return;
 
-        const calculatedDistance = turf.distance(from, to, {
-          units: "kilometers",
-        });
+const {
+  viewerLat,
+  viewerLng,
+} = currentViewerCoords;
 
-        setDistance(calculatedDistance.toFixed(2));
+// Distance
+const from = turf.point([
+  viewerLng,
+  viewerLat,
+]);
 
-        // Route + ETA
-        if (viewerLng && viewerLat && longitude && latitude) {
-          getRoute(viewerLng, viewerLat, longitude, latitude);
-        }
+const to = turf.point([
+  longitude,
+  latitude,
+]);
 
+const calculatedDistance =
+  turf.distance(
+    from,
+    to,
+    {
+      units:
+        "kilometers",
+    }
+  );
+
+setDistance(
+  calculatedDistance.toFixed(2)
+);
+
+// Route + ETA
+getRoute(
+  viewerLng,
+  viewerLat,
+  longitude,
+  latitude
+);
         // Follow Mode
         if (followMode) {
           mapRef.current.flyTo({
