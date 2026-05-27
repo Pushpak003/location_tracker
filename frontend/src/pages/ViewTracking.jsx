@@ -1,36 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-
 import { useParams } from "react-router-dom";
-
 import mapboxgl from "mapbox-gl";
-
 import { io } from "socket.io-client";
-
 import * as turf from "@turf/turf";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 function ViewTracking() {
   const { trackingId } = useParams();
-
   const mapRef = useRef(null);
-
   const mapContainerRef = useRef(null);
-
   const senderMarkerRef = useRef(null);
-
   const viewerMarkerRef = useRef(null);
-
   const socketRef = useRef(null);
-
   const viewerCoordsRef = useRef(null);
-
   const [distance, setDistance] = useState(null);
-
   const [eta, setEta] = useState(null);
-
   const [lastUpdated, setLastUpdated] = useState("Waiting...");
-
   const [followMode, setFollowMode] = useState(true);
 
   // Route Function
@@ -112,7 +98,6 @@ function ViewTracking() {
     // Viewer Location
     navigator.geolocation.getCurrentPosition((viewerPosition) => {
       const viewerLat = viewerPosition.coords.latitude;
-
       const viewerLng = viewerPosition.coords.longitude;
 
       viewerCoordsRef.current = {
