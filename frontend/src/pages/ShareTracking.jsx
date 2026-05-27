@@ -1,47 +1,22 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-
-import { useParams }
-from "react-router-dom";
-
-import mapboxgl
-from "mapbox-gl";
-
-import { io }
-from "socket.io-client";
+import {useEffect,useRef, useState,} from "react";
+import { useParams }from "react-router-dom";
+import mapboxgl from "mapbox-gl";
+import { io } from "socket.io-client";
 
 mapboxgl.accessToken =
   import.meta.env.VITE_MAPBOX_TOKEN;
 
 function ShareTracking() {
 
-  const { trackingId } =
-    useParams();
-
+  const { trackingId } =useParams();
   const mapRef = useRef(null);
-
-  const mapContainerRef =
-    useRef(null);
-
+  const mapContainerRef = useRef(null);
   const socketRef = useRef(null);
-
-  const senderMarkerRef =
-    useRef(null);
-
-  const watchIdRef =
-    useRef(null);
-
-  const [isCopied, setIsCopied] =
-    useState(false);
-
-  const [isSharing, setIsSharing] =
-    useState(true);
-
-  const shareLink =
-    `${window.location.origin}/view/${trackingId}`;
+  const senderMarkerRef = useRef(null);
+  const watchIdRef = useRef(null);
+  const [isCopied, setIsCopied] =  useState(false);
+  const [isSharing, setIsSharing] = useState(true);
+  const shareLink = `${window.location.origin}/view/${trackingId}`;
 
   useEffect(() => {
 

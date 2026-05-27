@@ -1,16 +1,12 @@
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
-
   const navigate = useNavigate();
-
-  const token =
-    localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   // Start Sharing
   const handleStartSharing =
     async () => {
-
       try {
 
         const response =

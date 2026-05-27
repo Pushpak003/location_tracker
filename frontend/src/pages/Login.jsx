@@ -1,28 +1,16 @@
-import {
-  useState,
-} from "react";
-
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import {useState,} from "react";
+import { Link,useNavigate,} from "react-router-dom";
 
 function Login() {
-
-  const navigate =
-    useNavigate();
-
+  const navigate = useNavigate();
   const [formData, setFormData] =
     useState({
       email: "",
       password: "",
     });
-
   const handleChange = (e) => {
-
     setFormData({
       ...formData,
-
       [e.target.name]:
         e.target.value,
     });

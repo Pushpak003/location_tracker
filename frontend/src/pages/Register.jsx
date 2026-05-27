@@ -1,19 +1,10 @@
-import {
-  useState,
-} from "react";
-
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import {useState,} from "react";
+import {Link,useNavigate,} from "react-router-dom";
 
 function Register() {
 
-  const navigate =
-    useNavigate();
-
-  const [formData, setFormData] =
-    useState({
+  const navigate = useNavigate()
+  const [formData, setFormData] =useState({
       name: "",
       username: "",
       email: "",
@@ -24,26 +15,19 @@ function Register() {
 
     setFormData({
       ...formData,
-
       [e.target.name]:
         e.target.value,
     });
-
   };
-
   const handleSubmit =
     async (e) => {
-
       e.preventDefault();
-
       try {
-
         const response =
           await fetch(
             "http://localhost:5000/api/auth/register",
             {
               method: "POST",
-
               headers: {
                 "Content-Type":
                   "application/json",
@@ -63,23 +47,14 @@ function Register() {
           alert(
             "Account created successfully"
           );
-
           navigate("/login");
-
         } else {
-
           alert(data.message);
-
         }
-
       } catch (error) {
-
         console.log(error);
-
       }
-
   };
-
   return (
     <div
       className="
