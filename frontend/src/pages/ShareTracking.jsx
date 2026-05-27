@@ -1,178 +1,187 @@
-import {useEffect,useRef, useState,} from "react";
-import { useParams }from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import { io } from "socket.io-client";
 
-mapboxgl.accessToken =
-  import.meta.env.VITE_MAPBOX_TOKEN;
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 function ShareTracking() {
-
-  const { trackingId } =useParams();
+  const { trackingId } = useParams();
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
   const socketRef = useRef(null);
   const senderMarkerRef = useRef(null);
   const watchIdRef = useRef(null);
-  const [isCopied, setIsCopied] =  useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(true);
+  const [mapStyle, setMapStyle] = useState("mapbox://styles/mapbox/dark-v11");
   const shareLink = `${window.location.origin}/view/${trackingId}`;
+  const navigate = useNavigate();
 
   useEffect(() => {
-
     // Map
-    mapRef.current =
-      new mapboxgl.Map({
-        container:
-          mapContainerRef.current,
+    mapRef.current = new mapboxgl.Map({
+      container: mapContainerRef.current,
 
-        style:
-          "mapbox://styles/mapbox/dark-v11",
+      style: mapStyle,
 
-        center: [77.4126, 23.2599],
+      center: [77.4126, 23.2599],
 
-        zoom: 15,
-      });
+      zoom: 15,
+    });
 
     // Socket
-    socketRef.current = io(
-      "http://localhost:5000",
-      {
-        auth: {
-          token:
-            localStorage.getItem(
-              "token"
-            ),
-        },
-      }
-    );
+    socketRef.current = io("http://localhost:5000", {
+      auth: {
+        token: localStorage.getItem("token"),
+      },
+    });
 
-    socketRef.current.emit(
-      "watch-tracking",
-      trackingId
-    );
+    socketRef.current.emit("watch-tracking", trackingId);
 
     // Live Location
-    watchIdRef.current =
-      navigator.geolocation.watchPosition(
-        (position) => {
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
 
-          const latitude =
-            position.coords.latitude;
+        const longitude = position.coords.longitude;
 
-          const longitude =
-            position.coords.longitude;
+        // Send Location
+        socketRef.current.emit("send-location", {
+          trackingId,
+          latitude,
+          longitude,
+        });
 
-          // Send Location
-          socketRef.current.emit(
-            "send-location",
-            {
-              trackingId,
-              latitude,
-              longitude,
-            }
-          );
-
-          // Marker
-          if (
-            !senderMarkerRef.current
-          ) {
-
-            senderMarkerRef.current =
-              new mapboxgl.Marker({
-                color: "#3b82f6",
-              })
-                .setLngLat([
-                  longitude,
-                  latitude,
-                ])
-                .addTo(
-                  mapRef.current
-                );
-
-          } else {
-
-            senderMarkerRef.current.setLngLat([
-              longitude,
-              latitude,
-            ]);
-
-          }
-
-          // Camera
-          mapRef.current.flyTo({
-            center: [
-              longitude,
-              latitude,
-            ],
-
-            speed: 1.2,
-          });
-
-        },
-        (error) => {
-          console.log(error);
-        },
-        {
-          enableHighAccuracy: true,
+        // Marker
+        if (!senderMarkerRef.current) {
+          senderMarkerRef.current = new mapboxgl.Marker({
+            color: "#3b82f6",
+          })
+            .setLngLat([longitude, latitude])
+            .addTo(mapRef.current);
+        } else {
+          senderMarkerRef.current.setLngLat([longitude, latitude]);
         }
-      );
 
+        // Camera
+        mapRef.current.flyTo({
+          center: [longitude, latitude],
+
+          speed: 1.2,
+        });
+      },
+      (error) => {
+        console.log(error);
+      },
+      {
+        enableHighAccuracy: true,
+      },
+    );
+  
     return () => {
-
       socketRef.current.disconnect();
 
       mapRef.current.remove();
 
-      navigator.geolocation.clearWatch(
-        watchIdRef.current
-      );
-
+      navigator.geolocation.clearWatch(watchIdRef.current);
     };
-
   }, []);
 
   // Copy Link
   const handleCopy = () => {
-
-    navigator.clipboard.writeText(
-      shareLink
-    );
+    navigator.clipboard.writeText(shareLink);
 
     setIsCopied(true);
 
     setTimeout(() => {
-
       setIsCopied(false);
-
     }, 2000);
   };
 
   // Stop Sharing
-  const handleStopSharing =
-    () => {
+  const handleStopSharing = () => {
+    navigator.geolocation.clearWatch(watchIdRef.current);
 
-      navigator.geolocation.clearWatch(
-        watchIdRef.current
-      );
+    socketRef.current.disconnect();
 
-      socketRef.current.disconnect();
+    setIsSharing(false);
 
-      setIsSharing(false);
+    alert("Live sharing stopped");
+    navigate("/dashboard");
+  };
+  const handleRecenter = () => {
+    if (senderMarkerRef.current) {
+      const lngLat = senderMarkerRef.current.getLngLat();
 
-      alert(
-        "Live sharing stopped"
-      );
+      mapRef.current.flyTo({
+        center: [lngLat.lng, lngLat.lat],
+
+        zoom: 15,
+
+        speed: 1,
+      });
+    }
   };
 
   return (
     <div className="relative h-screen w-full">
-
       {/* Map */}
-      <div
-        ref={mapContainerRef}
-        className="h-full w-full"
-      />
+      <div ref={mapContainerRef} className="h-full w-full" />
+      {/* Map Style Selector */}
+<select
+  value={mapStyle}
+  onChange={(e) =>
+    {
+  const style = e.target.value;
+  setMapStyle(style);
+  mapRef.current.setStyle(style);
+}
+  }
+  className="
+    absolute
+    top-5
+    left-5
+    z-10
+    bg-zinc-900
+    text-white
+    px-4
+    py-3
+    rounded-xl
+    outline-none
+  "
+>
+
+  <option value="mapbox://styles/mapbox/dark-v11">
+    Dark
+  </option>
+
+  <option value="mapbox://styles/mapbox/streets-v12">
+    Light
+  </option>
+
+  <option value="mapbox://styles/mapbox/satellite-streets-v12">
+    Satellite
+  </option>
+
+</select>
+      {/* Recenter Button */}
+      <button
+        onClick={handleRecenter}
+        className="
+    absolute
+    top-5
+    right-5
+    z-10
+    bg-zinc-900
+    text-white
+    p-4
+    rounded-full
+    shadow-xl
+  "
+      >
+        📍
+      </button>
 
       {/* Bottom Card */}
       <div
@@ -189,20 +198,14 @@ function ShareTracking() {
           shadow-2xl
         "
       >
-
         <div className="flex items-center justify-between mb-2">
-
           <h1
             className="
               text-2xl
               font-bold
             "
           >
-            {
-              isSharing
-                ? "Live Sharing Active"
-                : "Sharing Stopped"
-            }
+            {isSharing ? "Live Sharing Active" : "Sharing Stopped"}
           </h1>
 
           <div
@@ -214,7 +217,6 @@ function ShareTracking() {
               text-sm
             "
           >
-
             <div
               className="
                 w-2
@@ -224,11 +226,8 @@ function ShareTracking() {
                 animate-pulse
               "
             />
-
             Live
-
           </div>
-
         </div>
 
         <p
@@ -237,8 +236,7 @@ function ShareTracking() {
             mb-4
           "
         >
-          Anyone with this link
-          can track your location.
+          Anyone with this link can track your location.
         </p>
 
         {/* Link */}
@@ -257,7 +255,6 @@ function ShareTracking() {
 
         {/* Buttons */}
         <div className="flex gap-3">
-
           <button
             onClick={handleCopy}
             className="
@@ -269,18 +266,13 @@ function ShareTracking() {
               font-semibold
             "
           >
-            {
-              isCopied
-                ? "Copied!"
-                : "Copy Link"
-            }
+            {isCopied ? "Copied!" : "Copy Link"}
           </button>
 
           <button
             onClick={() => {
               navigator.share?.({
-                title:
-                  "Track My Location",
+                title: "Track My Location",
 
                 url: shareLink,
               });
@@ -298,9 +290,7 @@ function ShareTracking() {
           </button>
 
           <button
-            onClick={
-              handleStopSharing
-            }
+            onClick={handleStopSharing}
             className="
               flex-1
               bg-red-600
@@ -312,11 +302,8 @@ function ShareTracking() {
           >
             Stop
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }

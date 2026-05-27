@@ -3,10 +3,10 @@ import { useParams } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import { io } from "socket.io-client";
 import * as turf from "@turf/turf";
-
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 function ViewTracking() {
+  const [expired, setExpired] = useState(false);
   const { trackingId } = useParams();
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
@@ -18,6 +18,7 @@ function ViewTracking() {
   const [eta, setEta] = useState(null);
   const [lastUpdated, setLastUpdated] = useState("Waiting...");
   const [followMode, setFollowMode] = useState(true);
+  const [mapStyle, setMapStyle] =useState(  "mapbox://styles/mapbox/dark-v11");
 
   // Route Function
   const getRoute = async (viewerLng, viewerLat, senderLng, senderLat) => {
@@ -88,12 +89,40 @@ function ViewTracking() {
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
 
-      style: "mapbox://styles/mapbox/dark-v11",
+      style: mapStyle,
 
       center: [77.4126, 23.2599],
 
       zoom: 14,
     });
+    const verifyTracking =
+  async () => {
+
+    try {
+
+      const response =
+        await fetch(
+          `http://localhost:5000/api/tracking/${trackingId}`
+        );
+
+      const data =
+        await response.json();
+
+      if (!data.success) {
+
+        setExpired(true);
+
+      }
+
+    } catch (error) {
+
+      setExpired(true);
+
+    }
+
+};
+
+verifyTracking();
 
     // Viewer Location
     navigator.geolocation.getCurrentPosition((viewerPosition) => {
@@ -216,30 +245,112 @@ getRoute(
       });
     }
   };
+  if (expired) {
 
+  return (
+
+    <div
+      className="
+        h-screen
+        bg-black
+        flex
+        items-center
+        justify-center
+        text-white
+      "
+    >
+
+      <div
+        className="
+          text-center
+        "
+      >
+
+        <h1
+          className="
+            text-4xl
+            font-bold
+            mb-3
+          "
+        >
+          Tracking Expired
+        </h1>
+
+        <p
+          className="
+            text-zinc-400
+          "
+        >
+          This live tracking link
+          is no longer active.
+        </p>
+
+      </div>
+
+    </div>
+
+  );
+
+}
+  
   return (
     <div className="relative h-screen w-full">
       {/* Map */}
       <div ref={mapContainerRef} className="h-full w-full" />
 
-      {/* Recenter Button */}
-      <button
-        onClick={handleRecenter}
-        className="
-          absolute
-          top-5
-          right-5
-          z-10
-          bg-zinc-900
-          text-white
-          p-4
-          rounded-full
-          shadow-xl
-        "
-      >
-        📍
-      </button>
+     {/* Recenter Button */}
+<button
+  onClick={handleRecenter}
+  className="
+    absolute
+    top-5
+    right-5
+    z-10
+    bg-zinc-900
+    text-white
+    p-4
+    rounded-full
+    shadow-xl
+  "
+>
+  📍
+</button>
+{/* Map Style Selector */}
+<select
+  value={mapStyle}
+  onChange={(e) =>{{
+  const style =e.target.value;setMapStyle(style);
+  mapRef.current.setStyle(style);
+}}
+  
+  }
+  className="
+    absolute
+    top-5
+    left-5
+    z-10
+    bg-zinc-900
+    text-white
+    px-4
+    py-3
+    rounded-xl
+    outline-none
+  "
+>
 
+  <option value="mapbox://styles/mapbox/dark-v11">
+    Dark
+  </option>
+
+  <option value="mapbox://styles/mapbox/streets-v12">
+    Light
+  </option>
+
+  <option value="mapbox://styles/mapbox/satellite-streets-v12">
+    Satellite
+  </option>
+
+</select>
       {/* Bottom Card */}
       <div
         className="

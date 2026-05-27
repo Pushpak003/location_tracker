@@ -1,5 +1,4 @@
-import { verifyToken }
-from "../utils/jwt.js";
+const liveLocations = {};
 
 export const socketHandler =
 (io, socket) => {
@@ -19,6 +18,21 @@ export const socketHandler =
         `Watching ${trackingId}`
       );
 
+      // INSTANT SEND
+      const lastLocation =
+        liveLocations[
+          trackingId
+        ];
+
+      if (lastLocation) {
+
+        socket.emit(
+          "receive-location",
+          lastLocation
+        );
+
+      }
+
     }
   );
 
@@ -27,20 +41,29 @@ export const socketHandler =
     "send-location",
     (data) => {
 
-      io.to(
+      // SAVE LAST LOCATION
+      liveLocations[
+        data.trackingId
+      ] = {
+        latitude:
+          data.latitude,
+
+        longitude:
+          data.longitude,
+
+        userId:
+          socket.user?.id,
+      };
+
+      // BROADCAST
+      socket.to(
         data.trackingId
       ).emit(
         "receive-location",
-        {
-          latitude:
-            data.latitude,
 
-          longitude:
-            data.longitude,
-
-          userId:
-            socket.user?.id,
-        }
+        liveLocations[
+          data.trackingId
+        ]
       );
 
     }
@@ -56,4 +79,5 @@ export const socketHandler =
 
     }
   );
+
 };

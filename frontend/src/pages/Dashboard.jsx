@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-
+import{useState} from "react";
 function Dashboard() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const [expiryHours, setExpiryHours] = useState(1);
 
   // Start Sharing
   const handleStartSharing =
@@ -22,6 +23,9 @@ function Dashboard() {
                 Authorization:
                   `Bearer ${token}`,
               },
+              body: JSON.stringify({
+                expiryHours
+              }),
             }
           );
 
@@ -87,7 +91,57 @@ function Dashboard() {
         >
           Live Tracker
         </h1>
+         <div className="mb-5">
 
+  <label
+    className="
+      text-zinc-400
+      text-sm
+      block
+      mb-2
+    "
+  >
+    Link Expiry
+  </label>
+
+  <select
+    value={expiryHours}
+
+    onChange={(e) =>
+      setExpiryHours(
+        Number(
+          e.target.value
+        )
+      )
+    }
+
+    className="
+      w-full
+      bg-zinc-800
+      border
+      border-zinc-700
+      rounded-xl
+      p-3
+      text-white
+      outline-none
+    "
+  >
+
+    <option value={1}>
+      1 Hour
+    </option>
+
+    <option value={8}>
+      8 Hours
+    </option>
+
+    <option value={24}>
+      24 Hours
+    </option>
+
+  </select>
+
+</div>
         {/* Start Sharing */}
         <button
           onClick={

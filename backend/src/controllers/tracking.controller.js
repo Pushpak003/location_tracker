@@ -10,7 +10,8 @@ export const createTrackingController =
 
       const session =
         await createTrackingService(
-          req.user.id
+          req.user.id,
+          req.body.expiryHours
         );
 
       res.status(201).json({
