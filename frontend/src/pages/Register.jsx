@@ -25,7 +25,7 @@ function Register() {
       try {
         const response =
           await fetch(
-            "http://localhost:5000/api/auth/register",
+            "https://location-tracker-dhe8.onrender.com/api/auth/register",
             {
               method: "POST",
               headers: {

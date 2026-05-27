@@ -31,7 +31,7 @@ function ShareTracking() {
     });
 
     // Socket
-    socketRef.current = io("http://localhost:5000", {
+    socketRef.current = io("https://location-tracker-dhe8.onrender.com", {
       auth: {
         token: localStorage.getItem("token"),
       },

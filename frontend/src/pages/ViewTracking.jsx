@@ -102,7 +102,7 @@ function ViewTracking() {
 
       const response =
         await fetch(
-          `http://localhost:5000/api/tracking/${trackingId}`
+          `https://location-tracker-dhe8.onrender.com/api/tracking/${trackingId}`
         );
 
       const data =
@@ -142,7 +142,7 @@ verifyTracking();
         .addTo(mapRef.current);
 
       // Socket
-      socketRef.current = io("http://localhost:5000");
+      socketRef.current = io("https://location-tracker-dhe8.onrender.com");
 
       // Watch Tracking
       socketRef.current.emit("watch-tracking", trackingId);
