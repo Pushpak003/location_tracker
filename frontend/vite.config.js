@@ -1,10 +1,24 @@
-import { defineConfig } from "vite";
+import {  defineConfig} from "vite";
 import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [react()],
+  build: {
+    chunkSizeWarningLimit:
+      2000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          mapbox: [
+            "mapbox-gl",
+          ],
+          socket: [
+            "socket.io-client",
+          ],
+          turf: [
+            "@turf/turf",
+          ],
+        },
+      },
+    },
+  },
 });
