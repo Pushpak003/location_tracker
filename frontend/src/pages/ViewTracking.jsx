@@ -229,7 +229,7 @@ getRoute(
 
       mapRef.current?.remove();
     };
-  }, [followMode]);
+  }, []);
 
   // Recenter
   const handleRecenter = () => {
@@ -316,14 +316,25 @@ getRoute(
   📍
 </button>
 {/* Map Style Selector */}
+{/* Map Style Selector */}
 <select
   value={mapStyle}
-  onChange={(e) =>{{
-  const style =e.target.value;setMapStyle(style);
-  mapRef.current.setStyle(style);
-}}
-  
-  }
+  onChange={(e) => {
+
+    const style =
+      e.target.value;
+
+    setMapStyle(style);
+
+    if (mapRef.current) {
+
+      mapRef.current.setStyle(
+        style
+      );
+
+    }
+
+  }}
   className="
     absolute
     top-5
