@@ -294,74 +294,100 @@ getRoute(
 }
   
   return (
-    <div className="relative h-screen w-full">
-      {/* Map */}
-      <div ref={mapContainerRef} className="h-full w-full" />
+  <div
+    className="
+      relative
+      h-screen
+      w-full
+      overflow-hidden
+      bg-black
+    "
+  >
 
-     {/* Recenter Button */}
-<button
-  onClick={handleRecenter}
-  className="
-    absolute
-    top-5
-    right-5
-    z-10
-    bg-zinc-900
-    text-white
-    p-4
-    rounded-full
-    shadow-xl
-  "
->
-  📍
-</button>
-{/* Map Style Selector */}
-{/* Map Style Selector */}
-<select
-  value={mapStyle}
-  onChange={(e) => {
+    {/* Map */}
+    <div
+      ref={mapContainerRef}
+      className="
+        absolute
+        inset-0
+      "
+    />
 
-    const style =
-      e.target.value;
+    {/* Overlay */}
+    <div
+      className="
+        absolute
+        inset-0
+        z-10
+        pointer-events-none
+      "
+    >
 
-    setMapStyle(style);
+      {/* Recenter */}
+      <button
+        onClick={handleRecenter}
+        className="
+          absolute
+          top-5
+          right-5
+          pointer-events-auto
+          bg-zinc-900
+          text-white
+          p-4
+          rounded-full
+          shadow-xl
+        "
+      >
+        📍
+      </button>
 
-    if (mapRef.current) {
+      {/* Map Style */}
+      <select
+        value={mapStyle}
+        onChange={(e) => {
 
-      mapRef.current.setStyle(
-        style
-      );
+          const style =
+            e.target.value;
 
-    }
+          setMapStyle(style);
 
-  }}
-  className="
-    absolute
-    top-5
-    left-5
-    z-10
-    bg-zinc-900
-    text-white
-    px-4
-    py-3
-    rounded-xl
-    outline-none
-  "
->
+          if (mapRef.current) {
 
-  <option value="mapbox://styles/mapbox/dark-v11">
-    Dark
-  </option>
+            mapRef.current.setStyle(
+              style
+            );
 
-  <option value="mapbox://styles/mapbox/streets-v12">
-    Light
-  </option>
+          }
 
-  <option value="mapbox://styles/mapbox/satellite-streets-v12">
-    Satellite
-  </option>
+        }}
+        className="
+          absolute
+          top-5
+          left-5
+          pointer-events-auto
+          bg-zinc-900
+          text-white
+          px-4
+          py-3
+          rounded-xl
+          outline-none
+        "
+      >
 
-</select>
+        <option value="mapbox://styles/mapbox/dark-v11">
+          Dark
+        </option>
+
+        <option value="mapbox://styles/mapbox/streets-v12">
+          Light
+        </option>
+
+        <option value="mapbox://styles/mapbox/satellite-streets-v12">
+          Satellite
+        </option>
+
+      </select>
+
       {/* Bottom Card */}
       <div
         className="
@@ -369,6 +395,7 @@ getRoute(
           bottom-0
           left-0
           right-0
+          pointer-events-auto
           bg-zinc-900/95
           backdrop-blur-md
           text-white
@@ -376,7 +403,9 @@ getRoute(
           p-5
         "
       >
+
         <div className="flex items-center justify-between mb-3">
+
           <h1
             className="
               text-2xl
@@ -395,6 +424,7 @@ getRoute(
               text-sm
             "
           >
+
             <div
               className="
                 w-2
@@ -404,8 +434,11 @@ getRoute(
                 animate-pulse
               "
             />
+
             Live
+
           </div>
+
         </div>
 
         {/* Distance */}
@@ -417,9 +450,19 @@ getRoute(
             mb-2
           "
         >
-          <span>Distance</span>
 
-          <span>{distance ? `${distance} km` : "Calculating..."}</span>
+          <span>
+            Distance
+          </span>
+
+          <span>
+            {
+              distance
+                ? `${distance} km`
+                : "Calculating..."
+            }
+          </span>
+
         </div>
 
         {/* ETA */}
@@ -431,9 +474,19 @@ getRoute(
             mb-2
           "
         >
-          <span>ETA</span>
 
-          <span>{eta ? eta : "Calculating..."}</span>
+          <span>
+            ETA
+          </span>
+
+          <span>
+            {
+              eta
+                ? eta
+                : "Calculating..."
+            }
+          </span>
+
         </div>
 
         {/* Last Updated */}
@@ -444,13 +497,23 @@ getRoute(
             text-zinc-300
           "
         >
-          <span>Last Updated</span>
 
-          <span>{lastUpdated}</span>
+          <span>
+            Last Updated
+          </span>
+
+          <span>
+            {lastUpdated}
+          </span>
+
         </div>
+
       </div>
+
     </div>
-  );
+
+  </div>
+);
 }
 
 export default ViewTracking;
